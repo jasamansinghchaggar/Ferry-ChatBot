@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferry Website Chatbot</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
+    <style>
+        /* Basic styling for the chatbot interface */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        #chatContainer {
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chatbox {
+            height: 60vh;
+            padding: 10px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-container {
+            display: flex;
+            align-items: flex-start;
+            margin: 5px 0;
+        }
+
+        .message-container.user {
+            justify-content: flex-end;
+        }
+
+        .message-container.bot {
+            justify-content: flex-start;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin: 0 10px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 55%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .message.bot {
+            background-color: #e0e0e0;
+        }
+
+        #inputContainer {
+            display: flex;
+            padding: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #sendButton {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #sendButton:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            * {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chatContainer">
+        <div id="chatbox"></div>
+        <div id="inputContainer">
+            <input type="text" id="userInput" placeholder="Type a message...">
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('userInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim() === '') return; // Prevent sending empty messages
+
+            document.getElementById('chatbox').innerHTML += `
+                <div class="message-container user">
+                    <div class="message user">${userInput}</div>
+                    <div class="avatar"><i class="bi bi-person-circle"></i></div>
+                </div>`;
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userInput })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('chatbox').innerHTML += `
+                    <div class="message-container bot">
+                        <div class="avatar"><i class="bi bi-robot"></i></div>
+                        <div class="message bot">${data.reply}</div>
+                    </div>`;
+                    document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
+                });
+            document.getElementById('userInput').value = '';
+        }
+
+        function displayWelcomeMessage() {
+            const welcomeMessage = "Welcome! How can I assist you today?";
+            document.getElementById('chatbox').innerHTML += `
+                <div class="message-container bot">
+                    <div class="avatar"><i class="bi bi-robot"></i></div>
+                    <div class="message bot">${welcomeMessage}</div>
+                </div>`;
+        }
+
+        // Display the welcome message when the page loads
+        window.onload = displayWelcomeMessage;
+    </script>
+</body>
+
+</html>
