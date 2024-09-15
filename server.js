@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 
 // Load FAQs from JSON file
 const faq = JSON.parse(fs.readFileSync(path.join(__dirname, 'faq.json'), 'utf8'));
-
+console.log(faq);
 app.post('/chat', (req, res) => {
     const userMessage = req.body.message.toLowerCase();
     let botReply = "Sorry, I don't understand that question.";
